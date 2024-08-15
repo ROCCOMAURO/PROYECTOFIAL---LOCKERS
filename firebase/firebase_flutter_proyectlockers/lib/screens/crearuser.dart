@@ -1,88 +1,135 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
+import 'login_screen.dart';
 
-class UserScreen extends StatelessWidget {
+class UserScreen extends StatefulWidget {
   static const String name = 'crearusuario';
 
   const UserScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    
-    return Scaffold(
-      
-appBar: AppBar(
-  centerTitle: true,
-  title: const Text(
-    'Crear usuario',
-    style: TextStyle(
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    ),
-  ),
+  _UserScreenState createState() => _UserScreenState();
+}
 
-automaticallyImplyLeading: true,
-backgroundColor: const Color.fromARGB(255, 69, 61, 69),
-),
-backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+class _UserScreenState extends State<UserScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-body: ListView(
-  
-  children: [
-    Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Column(
-      children: [
-      const SizedBox(height: 50),
-    
-     const TextField(
-      
-                  decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Mail',
-                  icon: Icon(Icons.mail),
-                  iconColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                ),
-                
-              ),
-               const SizedBox(height: 20),
-    
-     const TextField(
-                  decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Contraseña',
-                  icon: Icon(Icons.lock),
-                  iconColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-               const SizedBox(height: 20),
+  Future<void> _createUser() async {
+    try {
+      final String email = emailController.text;
+      final String password = passwordController.text;
 
-        ElevatedButton(
-          onPressed: () {
-          const usuariocreado = SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text('Usuario creado'),
+      if (email.isEmpty || password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Los campos no pueden estar vacíos'),
+            backgroundColor: Colors.deepOrange,
+          ),
+        );
+        return;
+      }
+
+      // Crea un nuevo usuario con Firebase
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Usuario creado exitosamente'),
           backgroundColor: Colors.deepOrange,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(usuariocreado);
-          context.pushNamed(LoginScreen.name);
-          },  
+        ),
+      );
+
+      // Redirige a la pantalla de login
+      context.pushNamed(LoginScreen.name);
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'weak-password') {
+        message = 'La contraseña es demasiado débil.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'El correo electrónico ya está en uso.';
+      } else if (e.code == 'invalid-email') {
+        message = 'El correo electrónico es inválido.';
+      } else {
+        message = 'Error: ${e.message}';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.deepOrange,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'Crear usuario',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        automaticallyImplyLeading: true,
+        backgroundColor: const Color.fromARGB(255, 69, 61, 69),
+      ),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      body: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Mail',
+                    icon: Icon(Icons.mail),
+                    iconColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: passwordController,
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Contraseña',
+                    icon: Icon(Icons.lock),
+                    iconColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _createUser,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  ),                  
+                  ),
                   child: const Text(
                     'Crear usuario',
                     style: TextStyle(
@@ -91,14 +138,12 @@ body: ListView(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  ),           
-                        
-      ],
-    
-    ),
-    ),
-  ]
-    )
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
-    }
-    }
+  }
+}

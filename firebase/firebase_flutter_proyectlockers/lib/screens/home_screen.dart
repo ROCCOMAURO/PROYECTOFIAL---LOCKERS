@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_flutter_proyectlockers/auth.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker1_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker2_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
@@ -8,8 +9,6 @@ class HomeScreen extends StatelessWidget {
   static const String name = 'home';
 
   const HomeScreen({super.key});
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +130,7 @@ appBar: AppBar(
                   ),
                 ],
               ),            
-                        
-                        
-              
+                                     
             ],
           ),
           
@@ -201,16 +198,15 @@ appBar: AppBar(
           borderRadius: BorderRadius.circular(10),
           ),
                 ),
-         onPressed: () {
+          onPressed: () {
           context.pushNamed(LoginScreen.name);
-          const deslogin = SnackBar(
-                    duration: Duration(seconds: 3),
-                    content: Text('Cerraste sesion'),
-                    backgroundColor: Colors.deepOrange,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(deslogin);
-                },
-          
+          const chau = SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text('¡Hasta la próxima!'),
+          backgroundColor: Colors.deepOrange,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(chau);
+              },                         
           child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,          
           children: [
