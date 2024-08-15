@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1037003288462",
+    "project_id": "basededatos-322a2",
+    "storage_bucket": "basededatos-322a2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037003288462:android:cb7be91033bdd6732ebedf",
+        "android_client_info": {
+          "package_name": "com.example.firebase_flutter_proyectlockers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg32b23SK_wXB4ebXJOIwDAcWjBvTl1pM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
