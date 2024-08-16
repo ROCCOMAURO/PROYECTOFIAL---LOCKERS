@@ -48,14 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
       context.pushNamed(HomeScreen.name);
 
     } on FirebaseAuthException catch (e) {
-      String message;
-      if (e.code == 'user-not-found') {
-        message = 'Usuario no encontrado.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Contraseña incorrecta.';
-      } else {
-        message = '¡Algo no está bien!';
-      }
+      String message = '¡Algo no está bien!';
+
+      if (e.code == 'user-disabled') {
+      message = 'Tu cuenta ha sido suspedida ¿Que hiciste?';
+    }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
