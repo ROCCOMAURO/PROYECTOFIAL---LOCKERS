@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_flutter_proyectlockers/auth.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker1_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker2_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';

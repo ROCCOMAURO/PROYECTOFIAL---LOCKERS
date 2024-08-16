@@ -17,11 +17,7 @@ class Locker1Screen extends StatefulWidget {
 
 class _Locker1ScreenState extends State<Locker1Screen> {
   DateTime _selectedDay = DateTime.now();
-  DateTime? _rangeStart;
-  DateTime? _rangeEnd;
-  RangeSelectionMode _rangeSelectionMode = RangeSelectionMode
-      .toggledOn; // Can be toggled on/off by longpressing a date
-  DateTime _focusedDay = DateTime.now();
+ 
  
   @override
   Widget build(BuildContext context) {
@@ -57,8 +53,6 @@ class _Locker1ScreenState extends State<Locker1Screen> {
                 _selectedDay = selectedDay;
               });
             },
-            rangeStartDay: _rangeStart,
-            rangeEndDay: _rangeEnd,
             calendarStyle: const CalendarStyle(
               selectedDecoration: BoxDecoration(
                 color: Colors.blue,
