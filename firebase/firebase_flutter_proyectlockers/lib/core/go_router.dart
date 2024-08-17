@@ -4,6 +4,7 @@ import 'package:firebase_flutter_proyectlockers/screens/home_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker1_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker2_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
+import 'package:firebase_flutter_proyectlockers/screens/terms.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(routes: [
@@ -36,6 +37,11 @@ GoRoute(
     name: UserScreen.name,
     path: '/crearuser',
     builder: (context, state) => const UserScreen(),
+  ),
+  GoRoute(
+    name: TermsScreen.name,
+    path: '/terminos',
+    builder: (context, state) => TermsScreen(),
   ),
 
 

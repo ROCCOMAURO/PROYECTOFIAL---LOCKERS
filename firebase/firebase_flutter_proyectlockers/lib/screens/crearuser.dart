@@ -46,9 +46,11 @@ class _UserScreenState extends State<UserScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Correo de confirmación enviado'),
+          title: 
+          const Text('Correo de confirmación enviado'),
           content: const Text(
             'Se ha enviado un correo de confirmación a tu dirección de correo electrónico. Por favor, valide su cuenta. Gracias por confiar en nosotros. Atte LuckyLockers®',
+            style: TextStyle(), textAlign: TextAlign.justify,
           ),         
           actions: <Widget>[
             TextButton(

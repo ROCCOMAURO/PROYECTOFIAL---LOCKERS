@@ -1,10 +1,15 @@
+import 'package:firebase_flutter_proyectlockers/screens/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/gestures.dart';
 
 import 'home_screen.dart';
 import 'crearuser.dart';
 import 'contrauser.dart';
+
+bool _isLoading = false;
+
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login';
@@ -23,6 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> _login() async {
+    
+    setState(() {
+    _isLoading = true; 
+  });
+    
     try {
       final String email = userController.text;
       final String password = passwordController.text;
@@ -86,13 +96,23 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+    finally {
+    setState(() {
+      _isLoading = false; // Ocultar indicador de carga
+    });
+  }
   }
 
   @override
   Widget build(BuildContext context) {
   return Scaffold(
   backgroundColor: const Color.fromARGB(0, 0, 0, 0),
-   body: ListView(
+   body: _isLoading?
+   const Center(child: CircularProgressIndicator(
+    valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),   
+   )):  
+   
+   ListView(
    children: [
     Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -134,8 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
     obscureText: true,
     ),
       const SizedBox(height: 20),
-      Row(
-     mainAxisAlignment: MainAxisAlignment.center,
+   
+    Row(
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
     ElevatedButton(
     onPressed: () {
@@ -143,8 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
     },
     style: ElevatedButton.styleFrom(
      backgroundColor: Colors.black,
-                      ),
-                  
+                      ),                  
       child: const Text(
       'Crear usuario',
       style: TextStyle(
@@ -153,6 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fontWeight: FontWeight.bold,
   ),  ), ),
  const SizedBox(width: 7),
+
   ElevatedButton(
   onPressed: () {
     context.pushNamed(ContraScreen.name);
@@ -178,22 +199,24 @@ class _LoginScreenState extends State<LoginScreen> {
         fontWeight: FontWeight.bold,
   ), ),
  ),
-  const SizedBox(height: 40),
+  const SizedBox(height: 10),
+
   Container(
   margin: const EdgeInsets.symmetric(vertical: 10.0),
   padding: const EdgeInsets.all(10.0),
   width: double.infinity,
-  height: 70,
+  height: 100,
   decoration: BoxDecoration(
   borderRadius: BorderRadius.circular(16),
   color: const Color.fromARGB(222, 127, 127, 133),
   ),
-  alignment: Alignment.topLeft,
-  child: const Column(
+  
+  alignment: Alignment.topCenter,
+  child: Column(
   children: [
-   Row(
+  const Row(
   children: [
- Text(
+  Text(
   'Desarrollado por:',
   style: TextStyle(
   fontSize: 15,
@@ -202,8 +225,9 @@ class _LoginScreenState extends State<LoginScreen> {
   ),),
    ],
    ),
-   SizedBox(height: 5),
-   Row(
+   const SizedBox(height: 5),
+
+   const Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
     Text('Lucky',
@@ -218,18 +242,39 @@ class _LoginScreenState extends State<LoginScreen> {
     fontSize: 15,
     fontWeight: FontWeight.bold,
     color: Colors.black,
-), ), ], ),
+), 
+), 
+], 
+),
+
+
+ RichText(
+  text: TextSpan(
+  text: 'Al continuar, usted está aceptando los ',
+  style: const TextStyle(color: Colors.black, fontSize: 13),
+  children: <TextSpan>[              
+     TextSpan(
+     text: 'Terminos y condiciones',
+    style: const TextStyle(
+    color: Color.fromARGB(255, 0, 0, 0), 
+     fontSize: 13, 
+     fontWeight: FontWeight.bold, 
+     fontStyle: FontStyle.italic), 
+     
+    recognizer: TapGestureRecognizer()
+     ..onTap = () {
+      context.pushNamed(TermsScreen.name); // Navegación a la segunda pantalla
+      },
+    ),
+
 ],
 ),
+textAlign: TextAlign.center
 ),
  ],
-),
-),
-],
- ),
- );
-  }
-}
-     
+))
+]))]));}}
+
+    
       
     
