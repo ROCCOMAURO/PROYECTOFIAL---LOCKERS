@@ -1,4 +1,3 @@
-//import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
@@ -25,10 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> _login() async {  
+  Future<void> _login() async {
+    
     setState(() {
     _isLoading = true; 
-  });   
+  });
+    
     try {
       final String email = userController.text;
       final String password = passwordController.text;
@@ -42,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         return;
       }
+
+
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,

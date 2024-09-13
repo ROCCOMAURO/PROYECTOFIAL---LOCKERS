@@ -1,9 +1,8 @@
-import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:firebase_flutter_proyectlockers/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ignore: must_be_immutable
@@ -13,54 +12,64 @@ class Locker1Screen extends StatefulWidget {
   const Locker1Screen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _Locker1ScreenState createState() => _Locker1ScreenState();
 }
 
 class _Locker1ScreenState extends State<Locker1Screen> {
   DateTime? _selectedDay;
   DateTime _focusedDay = DateTime.now();
-  String? userEmail;
+  Set<DateTime> _blockedDays = {}; // Lista de fechas bloqueadas
 
   @override
   void initState() {
     super.initState();
-    _getUserEmail();
+    _fetchBlockedDays();
   }
-  
-    Future<void> _getUserEmail() async {
-    final user = FirebaseAuth.instance.currentUser;
+
+  Future<void> _fetchBlockedDays() async {
+    // Obtener las fechas bloqueadas desde Firestore
+    final firestore = FirebaseFirestore.instance;
+    final snapshot = await firestore.collection('reservas').get();
+    
+    final blockedDays = <DateTime>{};
+    for (var doc in snapshot.docs) {
+      final startDate = (doc.data()['fecha_inicio'] as Timestamp).toDate();
+      final endDate = (doc.data()['fecha_fin'] as Timestamp).toDate();
+      var current = startDate;
+      while (current.isBefore(endDate.add(Duration(days: 1)))) {
+        blockedDays.add(current);
+        current = current.add(Duration(days: 1));
+      }
+    }
+    
     setState(() {
-      userEmail = user?.email;
+      _blockedDays = blockedDays;
     });
   }
 
   Future<void> _reserveDay(DateTime date) async {
-  final firestore = FirebaseFirestore.instance;
-
-  final firestoreDate = Timestamp.fromDate(date);
-
-  await firestore.collection('reservas').add({
-    
-    'Día reservado: ': firestoreDate,
-    'Correo electrónico: ': userEmail,
-  });
-}
-
-Future<bool> _isDateAvailable(DateTime date) async {
-  final firestore = FirebaseFirestore.instance;
-
-  final querySnapshot = await firestore.collection('reservas')
-      .where('Día reservado: ', isEqualTo: Timestamp.fromDate(date))
-      .get();
-
-  for (var doc in querySnapshot.docs) {
-    if (doc.data()['Correo electrónico'] != userEmail) {
-      return false;
-    }
+    final firestore = FirebaseFirestore.instance;
+    await firestore.collection('reservas').add({
+      'fecha_inicio': Timestamp.fromDate(date),
+      'fecha_fin': Timestamp.fromDate(date),
+    });
+    setState(() {
+      _blockedDays.add(date);
+    });
   }
-  return true; 
-}
+
+  Future<void> _cancelReservation(DateTime date) async {
+    final firestore = FirebaseFirestore.instance;
+    final snapshot = await firestore.collection('reservas')
+      .where('fecha_inicio', isEqualTo: Timestamp.fromDate(date))
+      .get();
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+    setState(() {
+      _blockedDays.remove(date);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,95 +89,103 @@ Future<bool> _isDateAvailable(DateTime date) async {
       ),
       body: Column(
         children: [
-
-          TableCalendar( 
-            
-
+          TableCalendar(
             firstDay: DateTime.utc(2024, 07, 10),
             lastDay: DateTime.utc(2024, 10, 31),
             focusedDay: _focusedDay,
             calendarFormat: CalendarFormat.month,
             availableGestures: AvailableGestures.all,
-            
             selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
+              return _selectedDay != null && day.isAtSameMomentAs(_selectedDay!);
             },
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay; 
+                _focusedDay = focusedDay;
+                _selectedDay = selectedDay.isAtSameMomentAs(_selectedDay!) ? null : selectedDay;
               });
-              
-            },            
-            calendarStyle: const CalendarStyle(
-              selectedDecoration: BoxDecoration(
+            },
+            calendarStyle: CalendarStyle(
+              selectedDecoration: const BoxDecoration(
                 color: Colors.blue,
                 shape: BoxShape.circle,
               ),
-
-              selectedTextStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+              selectedTextStyle: const TextStyle(color: Colors.white),
               todayDecoration: BoxDecoration(
-                color: Color.fromARGB(255, 164, 163, 163),
+                color: Colors.grey[300],
                 shape: BoxShape.circle,
               ),
-            ),  
-           
-       enabledDayPredicate: (date) {
-       return (date.weekday != DateTime.sunday && date.weekday != DateTime.saturday);
-      },
-
-    calendarBuilders: CalendarBuilders( 
-    dowBuilder: (context, day) {
-    if (day.weekday == DateTime.sunday) {
-      final text = DateFormat.E().format(day);
-      return Center(
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.red),
-        ),
-      );
-    }
-    if (day.weekday == DateTime.saturday) {
-      final text = DateFormat.E().format(day);
-      return Center(
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.red),
-        ),
-      );
-    }
-    return null;
-    
-  }, 
-    ),         
+              todayTextStyle: const TextStyle(color: Colors.black),
+              defaultDecoration: BoxDecoration(
+                color: _blockedDays.contains(DateTime.utc(2024, 07, 10)) ? Colors.grey : null,
+                shape: BoxShape.circle,
+              ),
+              outsideDecoration: const BoxDecoration(
+                color: Colors.grey,
+                shape: BoxShape.circle,
+              ),
+              disabledDecoration: const BoxDecoration(
+                color: Colors.grey,
+                shape: BoxShape.circle,
+              ),
+            ),
+            calendarBuilders: CalendarBuilders(
+              dowBuilder: (context, day) {
+                if (day.weekday == DateTime.sunday || day.weekday == DateTime.saturday) {
+                  final text = DateFormat.E().format(day);
+                  return Center(
+                    child: Text(
+                      text,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+                return null;
+              },
+              selectedBuilder: (context, date, _) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${date.day}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              },
+            ),
+            enabledDayPredicate: (date) {
+              return !(_blockedDays.contains(date) || date.weekday == DateTime.sunday || date.weekday == DateTime.saturday);
+            },
           ),
           const SizedBox(height: 25),
-
           ElevatedButton(
-  child: const Text('Reservar'),
-  onPressed: () async {
-    if (_selectedDay != null) {
-      final isAvailable = await _isDateAvailable(_selectedDay!);
-      if (isAvailable) {
-        _reserveDay(_selectedDay!).then((_) {
-          _confirmar(context);
-          context.pushNamed(Teneslocker.name);
-        });
-      } else {
-        _showError(context, 'La fecha seleccionada no está disponible. Por favor, seleccione otra fecha.');
-      }
-    } else {
-      _showError(context, 'Selecciona un día para reservar.');
-    }
-  },
-),
-
-
+            child: const Text('Reservar'),
+            onPressed: () {
+              if (_selectedDay != null) {
+                _reserveDay(_selectedDay!).then((_) {
+                  _confirmar(context);
+                  context.pushNamed(HomeScreen.name);
+                });
+              } else {
+                _showError(context, 'Selecciona un día para reservar.');
+              }
+            },
+          ),
           const SizedBox(height: 10),
           ElevatedButton(
             child: const Text('¿Cancelar reserva?'),
             onPressed: () {
-              //aca poner todo lo que pasa si toco el botonardo
+              if (_selectedDay != null) {
+                _cancelReservation(_selectedDay!).then((_) {
+                  _cancelar(context);
+                  context.pushNamed(HomeScreen.name);
+                });
+              } else {
+                _showError(context, 'No hay reserva para cancelar en este día.');
+              }
             },
           ),
           const SizedBox(height: 10),
@@ -212,16 +229,14 @@ Future<bool> _isDateAvailable(DateTime date) async {
                           children: [
                             Text(
                               '¡Confirmaste tu reserva!',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
+                              style: TextStyle(fontSize: 18, color: Colors.white),
                             ),
                             SizedBox(height: 1),
                             Row(
                               children: [
                                 Text(
                                   'Gracias por confiar en nosotros',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white),
+                                  style: TextStyle(fontSize: 14, color: Colors.white),
                                 ),
                                 SizedBox(width: 5),
                                 Icon(
@@ -286,16 +301,14 @@ Future<bool> _isDateAvailable(DateTime date) async {
                           children: [
                             Text(
                               '¡Cancelaste tu reserva!',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
+                              style: TextStyle(fontSize: 18, color: Colors.white),
                             ),
                             SizedBox(height: 1),
                             Row(
                               children: [
                                 Text(
                                   'Nos vemos la próxima',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.white),
+                                  style: TextStyle(fontSize: 14, color: Colors.white),
                                 ),
                                 SizedBox(width: 5),
                                 Icon(
