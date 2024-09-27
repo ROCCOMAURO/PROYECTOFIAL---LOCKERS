@@ -4,10 +4,12 @@ import 'package:firebase_flutter_proyectlockers/screens/home_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker1_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/locker2_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
+import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:firebase_flutter_proyectlockers/screens/terms.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(routes: [
+    
   GoRoute(
     name: LoginScreen.name,
     path: '/',
@@ -43,6 +45,12 @@ GoRoute(
     path: '/terminos',
     builder: (context, state) => TermsScreen(),
   ),
+  GoRoute(
+    name: Teneslocker.name,
+    path: '/tenes',
+    builder: (context, state) => Teneslocker(),
+  ),
+
 
 
 ]);
