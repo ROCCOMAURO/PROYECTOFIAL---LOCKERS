@@ -8,6 +8,8 @@ import 'contrauser.dart';
 
 bool _isLoading = false;
 
+
+
 class LoginScreen extends StatefulWidget {
   static const String name = 'login';
   const LoginScreen({super.key});
@@ -23,6 +25,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool rememberMe = false;
+  bool _isObscure = true;
+
+  void _onRememberMeChanged(newValue) => setState(() {
+    rememberMe = newValue;
+
+    if (rememberMe) {
+      
+    } else {
+      
+    }
+  });
 
   Future<void> _login() async {
     
@@ -101,6 +116,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
   return Scaffold(
@@ -122,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
       height: 370,
     child: Image.asset("assets/images/Safe Safe.jpg"),
 ),
-    const SizedBox(height: 5),
+    
    
     TextField(
     controller: userController,
@@ -139,19 +156,29 @@ class _LoginScreenState extends State<LoginScreen> {
       const SizedBox(height: 20),
       TextField(
       controller: passwordController,
-      decoration: const InputDecoration(
+      obscureText: _isObscure,
+      decoration: InputDecoration(
       filled: true,
       fillColor: Colors.white,
       hintText: 'Contraseña',
-      icon: Icon(Icons.lock),
+      icon: const Icon(Icons.lock),
       iconColor: Colors.white,
-      border: OutlineInputBorder(
+      border: const OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(10)),
        ),
+       
+       suffixIcon: IconButton(
+          icon: Icon(
+            _isObscure ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _isObscure = !_isObscure; 
+            });
+          },
       ),
-    obscureText: true,
-    ),
-      const SizedBox(height: 20),
+    ),),
+      const SizedBox(height: 15),
 
  
     Row(
@@ -188,7 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
         fontWeight: FontWeight.bold,
   ),), ),
     ], ),
-      const SizedBox(height: 40),
+      const SizedBox(height: 10),
+
       ElevatedButton(
       onPressed: _login,
       child: const Text(
@@ -198,7 +226,27 @@ class _LoginScreenState extends State<LoginScreen> {
         fontWeight: FontWeight.bold,
   ), ),
  ),
-  const SizedBox(height: 20),
+  const SizedBox(height: 7),
+
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+              Checkbox(              
+              value: rememberMe,
+              onChanged: _onRememberMeChanged,           
+            ),
+          
+          const Text(
+            'Recordarme',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 7),
 
   Container(
   margin: const EdgeInsets.symmetric(vertical: 10.0),
@@ -248,6 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
  ],
 ))
 ]))]));}}
+
 
     
       

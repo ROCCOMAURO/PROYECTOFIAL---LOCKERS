@@ -107,6 +107,7 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
 
 class Teneslocker extends StatelessWidget {
   static const String name = 'tenes';
+  
 
   const Teneslocker({super.key});
 
@@ -200,7 +201,40 @@ class Teneslocker extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 3),
+
+                  
+                      Container(
+      margin: const EdgeInsets.symmetric(vertical: 5.0),
+      padding: const EdgeInsets.all(5.0),
+      width: double.infinity,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: const Color.fromARGB(222, 58, 58, 209)
+      ),
+      alignment: Alignment.center,
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.lock_clock,
+            color: Colors.white,
+            size: 30,
+          ),
+          SizedBox(width: 10),
+          Text(
+            'Hasta: ',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ),
+    
 
 
 

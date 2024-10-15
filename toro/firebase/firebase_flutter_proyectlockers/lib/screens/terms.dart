@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TermsScreen extends StatefulWidget {
   static const String name = 'terminos';
 
-  TermsScreen({super.key});
+  const TermsScreen({super.key});
 
   @override
   _TermsScreenState createState() => _TermsScreenState();

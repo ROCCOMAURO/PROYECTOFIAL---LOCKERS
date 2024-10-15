@@ -25,12 +25,17 @@ class _Locker1ScreenState extends State<Locker1Screen> {
     super.initState();
   }
 
-  Future<void> _reserveDay(DateTime date) async {
-    final firestore = FirebaseFirestore.instance;
-    await firestore.collection('reservas').add({
-      'Reserva: ': Timestamp.fromDate(date),
-    });
-  }
+Future<void> _reserveDay(DateTime date) async {
+  final firestore = FirebaseFirestore.instance;
+
+  // Establece la hora de la fecha seleccionada a las 9 de la mañana
+  final endDate = DateTime(date.year, date.month, date.day, 9);
+
+  await firestore.collection('reservas').add({
+    'Reserva realizada': Timestamp.now(),
+    'Reserva hasta': Timestamp.fromDate(endDate),  // Usamos la fecha con la hora ajustada
+  });
+}
 
   @override
   Widget build(BuildContext context) {
