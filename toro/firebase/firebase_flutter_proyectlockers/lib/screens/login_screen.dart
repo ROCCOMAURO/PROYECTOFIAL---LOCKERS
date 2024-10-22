@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
@@ -39,82 +41,106 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   });
 
-  Future<void> _login() async {
-    
-    setState(() {
+
+Future<void> _login() async {
+  setState(() {
     _isLoading = true; 
   });
-    
-    try {
-      final String email = userController.text;
-      final String password = passwordController.text;
+  
+  try {
+    final String email = userController.text;
+    final String password = passwordController.text;
 
-      if (email.isEmpty || password.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Campos vacíos'),
-            backgroundColor: Colors.deepOrange,
-          ),
-        );
-        return;
-      }
-
-
-      final userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
-      final user = userCredential.user;
-
-      if (user != null) {
-        await user.reload(); 
-        if (user.emailVerified) {
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Bienvenido de vuelta!'),
-              backgroundColor: Colors.deepOrange,
-            ),
-          );
-          context.pushNamed(HomeScreen.name); 
-        } else {
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Debes verificar tu correo electrónico antes de continuar.'),
-              backgroundColor: Colors.deepOrange,
-            ),
-          );
-          await _auth.signOut(); 
-        }
-      }
-    } on FirebaseAuthException catch (e) {
-      String message = '¡Algo no está bien!';
-
-      if (e.code == 'user-disabled') {
-        message = 'Tu cuenta ha sido suspendida';
-      } else if (e.code == 'wrong-password') {
-        message = 'La contraseña es incorrecta.';
-      } else if (e.code == 'user-not-found') {
-        message = 'No hay un usuario registrado con ese correo electrónico.';
-      } else if (e.code == 'invalid-email') {
-        message = 'El correo electrónico es inválido.';
-      }
-
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
+        const SnackBar(
+          content: Text('Campos vacíos'),
           backgroundColor: Colors.deepOrange,
         ),
       );
+      return;
     }
-    finally {
+
+    final userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final user = userCredential.user;
+
+    if (user != null) {
+      await user.reload(); 
+      if (user.emailVerified) {
+        // Consulta las reservas
+        final reservasSnapshot = await FirebaseFirestore.instance
+            .collection('reservas')
+            .where('email', isEqualTo: email)
+            .get();
+
+        bool tieneReserva = false;
+        final currentDate = DateTime.now();
+
+        for (var doc in reservasSnapshot.docs) {
+          final DateTime fechaInicio = (doc['Reserva empieza'] as Timestamp).toDate();
+          final DateTime fechaFin = (doc['Reserva hasta'] as Timestamp).toDate();
+
+          // Verifica si la fecha actual está dentro del rango de reserva
+          if (fechaInicio.isBefore(currentDate) && fechaFin.isAfter(currentDate)) {
+            tieneReserva = true;
+            break;
+          }
+        }
+
+        if (tieneReserva) {
+          // Redirigir a TenesLocker si hay una reserva activa
+          context.pushNamed(Teneslocker.name);
+        } else {
+          // Redirigir a HomeScreen si no hay reservas
+          context.pushNamed(HomeScreen.name);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Bienvenido de vuelta!'),
+            backgroundColor: Colors.deepOrange,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Debes verificar tu correo electrónico antes de continuar.'),
+            backgroundColor: Colors.deepOrange,
+          ),
+        );
+        await _auth.signOut(); 
+      }
+    }
+  } on FirebaseAuthException catch (e) {
+    String message = '¡Algo no está bien!';
+
+    if (e.code == 'user-disabled') {
+      message = 'Tu cuenta ha sido suspendida';
+    } else if (e.code == 'wrong-password') {
+      message = 'La contraseña es incorrecta.';
+    } else if (e.code == 'user-not-found') {
+      message = 'No hay un usuario registrado con ese correo electrónico.';
+    } else if (e.code == 'invalid-email') {
+      message = 'El correo electrónico es inválido.';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.deepOrange,
+      ),
+    );
+  } finally {
     setState(() {
       _isLoading = false; 
     });
   }
-  }
+}
+
 
   
 

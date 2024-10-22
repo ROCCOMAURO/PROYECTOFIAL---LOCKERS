@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -25,17 +26,21 @@ class _Locker1ScreenState extends State<Locker1Screen> {
     super.initState();
   }
 
-Future<void> _reserveDay(DateTime date) async {
+Future<void> _reserveDay(DateTime date, String email) async {
   final firestore = FirebaseFirestore.instance;
 
-  // Establece la hora de la fecha seleccionada a las 9 de la mañana
   final endDate = DateTime(date.year, date.month, date.day, 9);
+  
+  final startDate = endDate.subtract(const Duration(days: 1));
 
   await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),
-    'Reserva hasta': Timestamp.fromDate(endDate),  // Usamos la fecha con la hora ajustada
+    'Reserva empieza': Timestamp.fromDate(startDate),  
+    'Reserva hasta': Timestamp.fromDate(endDate),     
+    'Usuario': email,                                  
   });
 }
+
 
   @override
   Widget build(BuildContext context) {
@@ -128,15 +133,21 @@ Future<void> _reserveDay(DateTime date) async {
           ElevatedButton(
             child: const Text('Reservar'),
             onPressed: () {
-              if (_selectedDay != null) {
-                _reserveDay(_selectedDay!).then((_) {
-                  _confirmar(context);
-                  context.pushNamed(Teneslocker.name);
-                });
-              } else {
-                _showError(context, 'Selecciona un día para reservar.');
-              }
-            },
+  if (_selectedDay != null) {
+    final user = FirebaseAuth.instance.currentUser;
+    final String email = user!.email!;  // el ! es porque siempre esta asociado un email 
+
+    _reserveDay(_selectedDay!, email).then((_) {
+      _confirmar(context);
+      context.pushNamed(Teneslocker.name);
+    }).catchError((error) {
+      _showError(context, 'Hubo un error al realizar la reserva: $error');
+    });
+  } else {
+    _showError(context, 'Selecciona un día para reservar.');
+  }
+},
+
           ),
           const SizedBox(height: 10),
           ElevatedButton(
