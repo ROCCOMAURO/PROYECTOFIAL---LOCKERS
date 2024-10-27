@@ -9,25 +9,24 @@ import 'package:firebase_flutter_proyectlockers/screens/terms.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(routes: [
-
-
-    
-  GoRoute(
+      GoRoute(
     name: LoginScreen.name,
     path: '/',
     builder: (context, state) => const LoginScreen(),
-  ),
-      GoRoute(
+  ),  
+    
+    GoRoute(
     name: HomeScreen.name,
     path: '/home',
     builder: (context, state) => const HomeScreen(),
   ),
+ 
 
-GoRoute(
-    name: Locker1Screen.name,
-    path: '/Locker1',
-    builder: (context, state) => const Locker1Screen(),
-  ),
+    GoRoute(
+      name: Locker1Screen.name,
+      path: '/Locker1',
+      builder: (context, state) => Locker1Screen(),
+    ),
   GoRoute(
     name: Locker2Screen.name,
     path: '/Locker2',

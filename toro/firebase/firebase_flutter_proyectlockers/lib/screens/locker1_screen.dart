@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_flutter_proyectlockers/screens/home_screen.dart';
 import 'package:firebase_flutter_proyectlockers/screens/teneslocker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,7 +20,6 @@ class Locker1Screen extends StatefulWidget {
 class _Locker1ScreenState extends State<Locker1Screen> {
   DateTime? _selectedDay;
   DateTime _focusedDay = DateTime.now();
-  
 
   @override
   void initState() {
@@ -29,18 +29,41 @@ class _Locker1ScreenState extends State<Locker1Screen> {
 Future<void> _reserveDay(DateTime date, String email) async {
   final firestore = FirebaseFirestore.instance;
 
-  final endDate = DateTime(date.year, date.month, date.day, 9);
-  
-  final startDate = endDate.subtract(const Duration(days: 1));
+  final startDate = DateTime(date.year, date.month, date.day, 8);
+  final endDate = DateTime(date.year, date.month, date.day, 19);
+
+  final chequeofecha = await firestore
+      .collection('reservas')
+      .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+      .get();
+
+  if (chequeofecha.docs.isNotEmpty) {
+    _showError(context, 'Error: Ya existe una reserva para este día');
+    return;
+  }
+
+ // final mismousuario = await firestore  // ---> esto tengo que fijarme bien cuando el programa se daria cuenta que ya paso la reserva
+   //   .collection('reservas')
+     // .where('Usuario', isEqualTo: email)  
+   //   .get();
+
+  //if (mismousuario.docs.isNotEmpty) {
+   // _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
+    //return;
+ // } 
 
   await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),
     'Reserva empieza': Timestamp.fromDate(startDate),  
     'Reserva hasta': Timestamp.fromDate(endDate),     
-    'Usuario': email,                                  
+    'Usuario': email,  
+    '¿Como viene eso?': 'Locker ocupado',                                  
   });
-}
 
+  _confirmar(context);
+  context.pushNamed(Teneslocker.name);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -58,106 +81,103 @@ Future<void> _reserveDay(DateTime date, String email) async {
         automaticallyImplyLeading: true,
         backgroundColor: const Color.fromARGB(255, 69, 61, 69),
       ),
-      body: Column(
-        children: [
-          TableCalendar(
-            headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
-  firstDay: DateTime.utc(2024, 07, 10),
-  lastDay: DateTime.utc(2024, 10, 31),
-  focusedDay: _focusedDay,
-  selectedDayPredicate: (day) {
-    return _selectedDay != null && isSameDay(_selectedDay, day);
-  },
-  onDaySelected: (selectedDay, focusedDay) {
-    if (selectedDay.weekday == DateTime.saturday || selectedDay.weekday == DateTime.sunday) {
-      _showError(context, 'No puedes seleccionar sábados y/o domingos.');
-      
-      return;
-    }
-    setState(() {
-      _focusedDay = focusedDay;
-      _selectedDay = selectedDay;
-    });
-  },
-  calendarFormat: CalendarFormat.month,
-  availableGestures: AvailableGestures.all,
+      body: Center(
+        child: Column(
+          children: [
   
-  calendarStyle: CalendarStyle(
-    selectedDecoration: const BoxDecoration(
-      color: Colors.blue,  
-      shape: BoxShape.circle,
-    ),
-    selectedTextStyle: const TextStyle(color: Colors.white),
-    todayDecoration: BoxDecoration(
-      color: Colors.grey[300],
-      shape: BoxShape.circle,
-    ),
-    todayTextStyle: const TextStyle(color: Colors.black),
-    weekendTextStyle: const TextStyle(color: Colors.grey),  
-    disabledTextStyle: const TextStyle(color: Colors.grey), 
-  ),
-  
-  calendarBuilders: CalendarBuilders(
-    dowBuilder: (context, day) {
-      if (day.weekday == DateTime.sunday || day.weekday == DateTime.saturday) {
-        final text = DateFormat.E().format(day);
-        return Center(
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.red), 
+            TableCalendar(
+         headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
+          firstDay: DateTime.utc(2024, 10, 27),
+          lastDay: DateTime.utc(2024, 11, 8),
+          startingDayOfWeek: StartingDayOfWeek.monday,
+          focusedDay: _focusedDay,
+          selectedDayPredicate: (day) {
+            return _selectedDay != null && isSameDay(_selectedDay, day);
+          },
+          onDaySelected: (selectedDay, focusedDay) {
+            if (selectedDay.weekday == DateTime.saturday || selectedDay.weekday == DateTime.sunday) {
+        _showError(context, 'No puedes seleccionar sábados y/o domingos.');     
+        return;
+            }
+            setState(() {
+        _focusedDay = focusedDay;
+        _selectedDay = selectedDay;
+            });
+          },
+          calendarFormat: CalendarFormat.week,
+          availableGestures: AvailableGestures.all,
+          
+          calendarStyle: CalendarStyle(
+            selectedDecoration: const BoxDecoration(
+        color: Colors.blue,  
+        shape: BoxShape.circle,
+            ),
+            selectedTextStyle: const TextStyle(color: Colors.white),
+            todayDecoration: BoxDecoration(
+        color: Colors.grey[300],
+        shape: BoxShape.circle,
+            ),
+            todayTextStyle: const TextStyle(color: Colors.black),
+            weekendTextStyle: const TextStyle(color: Colors.grey),  
+            disabledTextStyle: const TextStyle(color: Colors.grey), 
+          ),
+          
+          calendarBuilders: CalendarBuilders(
+            dowBuilder: (context, day) {
+        if (day.weekday == DateTime.sunday || day.weekday == DateTime.saturday) {
+          final text = DateFormat.E().format(day);
+          return Center(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.red), 
+            ),
+          );
+        }
+        return null;
+            },
+        
+            selectedBuilder: (context, date, _) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.blue, 
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              '${date.day}',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         );
-      }
-      return null;
-    },
-
-    selectedBuilder: (context, date, _) {
-      return Container(
-        decoration: const BoxDecoration(
-          color: Colors.blue, 
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '${date.day}',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    },
-  ),
-),
-
-
-          const SizedBox(height: 25),
-          ElevatedButton(
-            child: const Text('Reservar'),
-            onPressed: () {
-  if (_selectedDay != null) {
-    final user = FirebaseAuth.instance.currentUser;
-    final String email = user!.email!;  // el ! es porque siempre esta asociado un email 
-
-    _reserveDay(_selectedDay!, email).then((_) {
-      _confirmar(context);
-      context.pushNamed(Teneslocker.name);
-    }).catchError((error) {
-      _showError(context, 'Hubo un error al realizar la reserva: $error');
-    });
-  } else {
-    _showError(context, 'Selecciona un día para reservar.');
-  }
-},
-
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            child: const Text('¿Cancelar reserva?'),
-            onPressed: () {
-              
             },
           ),
-          const SizedBox(height: 10),
-        ],
+        ),
+        
+        
+            const SizedBox(height: 25),
+            ElevatedButton(
+  child: const Text('Reservar'),
+  onPressed: () {
+    if (_selectedDay != null) {
+      final user = FirebaseAuth.instance.currentUser;
+      final String email = user!.email!;  // El ! es porque siempre está asociado un email 
+      _reserveDay(_selectedDay!, email);   // Aca mando los valores a la funcion de arriba
+    } else {
+      _showError(context, 'Selecciona un día para reservar.');
+    }
+  },
+),
+
+            const SizedBox(height: 10),
+            ElevatedButton(
+              child: const Text('Atras'),
+              onPressed: () {
+                context.pushNamed(HomeScreen.name);
+              },
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }

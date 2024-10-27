@@ -8,7 +8,9 @@ environment:
 
 
 dependencies:
+  wifi_info_flutter: ^2.0.2
   awesome_dialog: ^3.2.1
+  connection_status_bar: ^1.1.5
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   awesome_snackbar_content: ^0.1.4
@@ -16,12 +18,14 @@ dependencies:
     sdk: flutter  
   flutter_launcher_icons: ^0.14.1
   font_awesome_flutter: ^10.7.0
+  connectivity_plus: ^1.4.0
   go_router: ^14.3.0
   intl: ^0.19.0
-  syncfusion_flutter_datepicker: ^27.1.52
+  syncfusion_flutter_datepicker: ^27.1.56
   gestures: ^1.0.0
   table_calendar: ^3.1.2
   cloud_firestore: ^5.4.4
+  get: ^4.6.6
 
 dev_dependencies:
   flutter_lints: ^5.0.0

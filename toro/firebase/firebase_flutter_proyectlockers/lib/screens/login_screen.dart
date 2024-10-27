@@ -11,7 +11,6 @@ import 'contrauser.dart';
 bool _isLoading = false;
 
 
-
 class LoginScreen extends StatefulWidget {
   static const String name = 'login';
   const LoginScreen({super.key});
@@ -31,16 +30,17 @@ class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
   bool _isObscure = true;
 
+// -----------------------------
   void _onRememberMeChanged(newValue) => setState(() {
     rememberMe = newValue;
 
     if (rememberMe) {
-      
+      //aca fijarme depues q hago jeje
     } else {
-      
+      //
     }
   });
-
+// -----------------------------
 
 Future<void> _login() async {
   setState(() {
@@ -71,10 +71,10 @@ Future<void> _login() async {
     if (user != null) {
       await user.reload(); 
       if (user.emailVerified) {
-        // Consulta las reservas
+       
         final reservasSnapshot = await FirebaseFirestore.instance
             .collection('reservas')
-            .where('email', isEqualTo: email)
+            .where('Usuario', isEqualTo: email) 
             .get();
 
         bool tieneReserva = false;
@@ -84,21 +84,16 @@ Future<void> _login() async {
           final DateTime fechaInicio = (doc['Reserva empieza'] as Timestamp).toDate();
           final DateTime fechaFin = (doc['Reserva hasta'] as Timestamp).toDate();
 
-          // Verifica si la fecha actual está dentro del rango de reserva
           if (fechaInicio.isBefore(currentDate) && fechaFin.isAfter(currentDate)) {
             tieneReserva = true;
-            break;
+            break; 
           }
         }
-
-        if (tieneReserva) {
-          // Redirigir a TenesLocker si hay una reserva activa
+        if (tieneReserva) {        
           context.pushNamed(Teneslocker.name);
-        } else {
-          // Redirigir a HomeScreen si no hay reservas
+        } else {       
           context.pushNamed(HomeScreen.name);
         }
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Bienvenido de vuelta!'),
@@ -120,12 +115,10 @@ Future<void> _login() async {
 
     if (e.code == 'user-disabled') {
       message = 'Tu cuenta ha sido suspendida';
-    } else if (e.code == 'wrong-password') {
-      message = 'La contraseña es incorrecta.';
-    } else if (e.code == 'user-not-found') {
-      message = 'No hay un usuario registrado con ese correo electrónico.';
+    } else if (e.code == 'wrong-password' && e.code == 'user-not-found') {
+      message = 'Contraseña y/o usuario incorrectos';
     } else if (e.code == 'invalid-email') {
-      message = 'El correo electrónico es inválido.';
+      message = 'El correo electrónico es inválido';
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -141,8 +134,6 @@ Future<void> _login() async {
   }
 }
 
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +151,8 @@ Future<void> _login() async {
     child: Column(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
+
+    
      SizedBox(
      width: 370,
       height: 370,
