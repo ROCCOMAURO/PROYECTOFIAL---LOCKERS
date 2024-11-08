@@ -38,20 +38,20 @@ Future<void> _reserveDay(DateTime date, String email) async {
       .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
       .get();
 
-  if (chequeofecha.docs.isNotEmpty) {
+  if (chequeofecha.docs.isNotEmpty) {  
     _showError(context, 'Error: Ya existe una reserva para este día');
     return;
   }
 
- // final mismousuario = await firestore  // ---> esto tengo que fijarme bien cuando el programa se daria cuenta que ya paso la reserva
-   //   .collection('reservas')
-     // .where('Usuario', isEqualTo: email)  
-   //   .get();
+ /* final mismousuario = await firestore   //aca tengo q fijarme que onda esto
+      .collection('reservas')
+     .where('Usuario', isEqualTo: email)  
+     .get();
 
-  //if (mismousuario.docs.isNotEmpty) {
-   // _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
-    //return;
- // } 
+if (mismousuario.docs.isNotEmpty) { 
+   _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
+  return;
+ } */
 
   await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
+import 'package:http/http.dart' as http;
 
-  void snackbarabrir(BuildContext context) {
+  void snackbarabrir(BuildContext context) async {
   final overlay = Overlay.of(context);
   final overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
@@ -27,7 +28,6 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   strokeWidth: 3.0,
                 ),
-
                 Expanded(
                   child: Center( 
                     child: Text(
@@ -36,8 +36,7 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
                     ),
                   ),
                 ),
-               SizedBox(width: 10), 
-                
+                SizedBox(width: 10), 
               ],
             ),
           ),
@@ -48,12 +47,21 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
 
   overlay.insert(overlayEntry);
 
+  // Cambia la URL a la IP de tu ESP32
+  final response = await http.get(Uri.parse('http://192.168.68.101/abrir'));
+
+  if (response.statusCode == 200) {
+    print('Locker abierto');
+  } else {
+    print('Error al abrir el locker');
+  }
+
   Future.delayed(const Duration(seconds: 2), () {
     overlayEntry.remove();
   });
 }
 
-  void snackbarcerrar(BuildContext context) {
+void snackbarcerrar(BuildContext context) async {
   final overlay = Overlay.of(context);
   final overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
@@ -78,7 +86,6 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   strokeWidth: 3.0,
                 ),
-
                 Expanded(
                   child: Center( 
                     child: Text(
@@ -87,8 +94,7 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
                     ),
                   ),
                 ),
-               SizedBox(width: 10), 
-                
+                SizedBox(width: 10), 
               ],
             ),
           ),
@@ -98,6 +104,14 @@ import 'package:firebase_flutter_proyectlockers/screens/login_screen.dart';
   );
 
   overlay.insert(overlayEntry);
+
+  final response = await http.get(Uri.parse('http://192.168.68.101/cerrar'));
+
+  if (response.statusCode == 200) {
+    print('Locker cerrado');
+  } else {
+    print('Error al cerrar el locker');
+  }
 
   Future.delayed(const Duration(seconds: 2), () {
     overlayEntry.remove();
@@ -224,7 +238,7 @@ class Teneslocker extends StatelessWidget {
           ),
           SizedBox(width: 10),
           Text(
-            'Hasta: ',
+            'Hasta 7 pm ',
             style: TextStyle(
               fontSize: 20,
               color: Colors.white,
@@ -234,12 +248,7 @@ class Teneslocker extends StatelessWidget {
         ],
       ),
     ),
-    
-
-
-
-
-                  
+               
                      
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
