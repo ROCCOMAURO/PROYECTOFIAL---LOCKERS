@@ -87,8 +87,8 @@ if (mismousuario.docs.isNotEmpty) {
   
             TableCalendar(
          headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
-          firstDay: DateTime.utc(2024, 10, 27),
-          lastDay: DateTime.utc(2024, 11, 8),
+          firstDay: DateTime.utc(2024, 11, 8),
+          lastDay: DateTime.utc(2024, 11, 16),
           startingDayOfWeek: StartingDayOfWeek.monday,
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) {
@@ -175,8 +175,31 @@ if (mismousuario.docs.isNotEmpty) {
                 context.pushNamed(HomeScreen.name);
               },
             ),
-            const SizedBox(height: 10),
-          ],
+            const SizedBox(height: 400),
+
+             
+   Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+    Text('Lucky',
+    style: TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+    color: Colors.yellow,
+    ),),
+    Text(
+   'Lockers®',
+    style: TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+), 
+), 
+], 
+),
+          ]  
+      
+    
         ),
       ),
     );

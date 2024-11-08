@@ -47,8 +47,8 @@ import 'package:http/http.dart' as http;
 
   overlay.insert(overlayEntry);
 
-  // Cambia la URL a la IP de tu ESP32
-  final response = await http.get(Uri.parse('http://192.168.68.101/abrir'));
+
+  final response = await http.get(Uri.parse('http://10.162.24.88/abrir'));
 
   if (response.statusCode == 200) {
     print('Locker abierto');
@@ -105,7 +105,7 @@ void snackbarcerrar(BuildContext context) async {
 
   overlay.insert(overlayEntry);
 
-  final response = await http.get(Uri.parse('http://192.168.68.101/cerrar'));
+  final response = await http.get(Uri.parse('http://10.162.24.88/cerrar'));
 
   if (response.statusCode == 200) {
     print('Locker cerrado');
