@@ -35,7 +35,7 @@ Future<void> _reserveDay(DateTime date, String email) async {
   final chequeofecha = await firestore
       .collection('reservas')
       .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))   
       .get();
 
   if (chequeofecha.docs.isNotEmpty) {  
@@ -43,17 +43,41 @@ Future<void> _reserveDay(DateTime date, String email) async {
     return;
   }
 
+    final fechasanteriores = await firestore
+      .collection('reservas')
+      .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+      .get();
 
-/*final mismousuario = await firestore
+  if (fechasanteriores.docs.isNotEmpty) {  
+    _showError(context, 'Fecha no disponible');
+    return;
+  }
+
+final mismousuario = await firestore
     .collection('reservas')
-    .where('Usuario', isEqualTo: email)  // Filtramos por el correo del usuario
-    .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now())) // Verifica si tiene una reserva futura (que empieza después de ahora)
+    .where('Usuario', isEqualTo: email)
     .get();
 
-if (mismousuario.docs.isNotEmpty) {
-  _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
+final eshoy = await firestore
+      .collection('reservas')
+      .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
+      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))   
+      .get();
+
+  if (eshoy.docs.isNotEmpty) {  
+    _confirmar(context);
+    return;
+  }
+
+final futuros = mismousuario.docs.where((doc) {
+  final reservaEmpieza = doc['Reserva empieza'] as Timestamp;
+  return reservaEmpieza.toDate().isAfter(DateTime.now());
+}).toList();
+
+if (futuros.isNotEmpty) {
+  _showError(context, 'Error: Ya tienes una reserva realizada');
   return;
-} */
+}
 
     await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),
@@ -64,7 +88,7 @@ if (mismousuario.docs.isNotEmpty) {
   });
   
   _confirmar(context);
-  context.pushNamed(Teneslocker.name);
+  context.pushNamed(HomeScreen.name);
 }
 
   @override
