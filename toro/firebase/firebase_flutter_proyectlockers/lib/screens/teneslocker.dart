@@ -48,7 +48,7 @@ import 'package:http/http.dart' as http;
   overlay.insert(overlayEntry);
 
 
-  final response = await http.get(Uri.parse('http://10.162.24.88/abrir'));
+  final response = await http.get(Uri.parse('http://192.168.68.111/abrir'));
 
   if (response.statusCode == 200) {
     print('Locker abierto');
@@ -105,7 +105,7 @@ void snackbarcerrar(BuildContext context) async {
 
   overlay.insert(overlayEntry);
 
-  final response = await http.get(Uri.parse('http://10.162.24.88/cerrar'));
+  final response = await http.get(Uri.parse('http://192.168.68.111/cerrar'));
 
   if (response.statusCode == 200) {
     print('Locker cerrado');

@@ -26,70 +26,57 @@ class _Locker1ScreenState extends State<Locker1Screen> {
     super.initState();
   }
 
-Future<void> _reserveDay(DateTime date, String email) async {
+Future<void> _reserveDay(BuildContext context, DateTime date, String email) async {
   final firestore = FirebaseFirestore.instance;
 
+  final now = DateTime.now();
   final startDate = DateTime(date.year, date.month, date.day, 8);
   final endDate = DateTime(date.year, date.month, date.day, 19);
 
   final chequeofecha = await firestore
       .collection('reservas')
       .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))   
+      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
       .get();
 
-  if (chequeofecha.docs.isNotEmpty) {  
+  if (chequeofecha.docs.isNotEmpty) {
     _showError(context, 'Error: Ya existe una reserva para este día');
     return;
   }
 
-  final fechasanteriores = await firestore
+  final mismousuario = await firestore
       .collection('reservas')
-      .where('Reserva empieza', isLessThan: Timestamp.fromDate(DateTime.now()))
+      .where('Usuario', isEqualTo: email)
       .get();
 
-  if (fechasanteriores.docs.isNotEmpty) {  
-    _showError(context, 'Fecha no disponible');
-    return;
-  } 
+  final futuros = mismousuario.docs.where((doc) {
+    final reservaEmpieza = doc['Reserva empieza'] as Timestamp;
+    return reservaEmpieza.toDate().isAfter(DateTime.now());
+  }).toList();
 
-final mismousuario = await firestore
-    .collection('reservas')
-    .where('Usuario', isEqualTo: email)
-    .get();
-
-final eshoy = await firestore
-      .collection('reservas')
-      .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now()))
-      .where('Reserva empieza', isLessThanOrEqualTo: Timestamp.fromDate(endDate))   
-      .get();
-
-  if (eshoy.docs.isNotEmpty) {  
-    _confirmar(context);
-    context.pushNamed(Teneslocker.name);
+  if (futuros.isNotEmpty) {
+    _showError(context, 'Error: Ya tienes una reserva realizada');
     return;
   }
 
-final futuros = mismousuario.docs.where((doc) {
-  final reservaEmpieza = doc['Reserva empieza'] as Timestamp;
-  return reservaEmpieza.toDate().isAfter(DateTime.now());
-}).toList();
-
-if (futuros.isNotEmpty) {
-  _showError(context, 'Error: Ya tienes una reserva realizada');
-  return;
-}
-
-    await firestore.collection('reservas').add({
+  await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),
-    'Reserva empieza': Timestamp.fromDate(startDate),  
-    'Reserva hasta': Timestamp.fromDate(endDate),     
-    'Usuario': email,  
-    '¿Como viene eso?': 'Reservado',                                  
+    'Reserva empieza': Timestamp.fromDate(startDate),
+    'Reserva hasta': Timestamp.fromDate(endDate),
+    'Usuario': email,
+    '¿Como viene eso?': 'Reservado',
   });
-  
-  _confirmar(context);
-  context.pushNamed(HomeScreen.name);
+
+    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+    if (now.hour < 19 && now.hour > 8) {
+      _confirmar(context);
+       context.pushNamed(Teneslocker.name);
+      return;
+    }
+    }
+    
+    _confirmar(context);
+    context.pushNamed(HomeScreen.name);
 }
 
   @override
@@ -188,7 +175,7 @@ if (futuros.isNotEmpty) {
     if (_selectedDay != null) {
       final user = FirebaseAuth.instance.currentUser;
       final String email = user!.email!;  // El ! es porque siempre está asociado un email 
-      _reserveDay(_selectedDay!, email);   // Aca mando los valores a la funcion de arriba
+      _reserveDay(context, _selectedDay!, email);   // Aca mando los valores a la funcion de arriba
     } else {
       _showError(context, 'Selecciona un día para reservar.');
     }
