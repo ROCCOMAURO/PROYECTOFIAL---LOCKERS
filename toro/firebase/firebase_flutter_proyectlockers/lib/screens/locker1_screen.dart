@@ -43,24 +43,26 @@ Future<void> _reserveDay(DateTime date, String email) async {
     return;
   }
 
- /* final mismousuario = await firestore   //aca tengo q fijarme que onda esto
-      .collection('reservas')
-     .where('Usuario', isEqualTo: email)  
-     .get();
 
-if (mismousuario.docs.isNotEmpty) { 
-   _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
+/*final mismousuario = await firestore
+    .collection('reservas')
+    .where('Usuario', isEqualTo: email)  // Filtramos por el correo del usuario
+    .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.now())) // Verifica si tiene una reserva futura (que empieza después de ahora)
+    .get();
+
+if (mismousuario.docs.isNotEmpty) {
+  _showError(context, 'Error: Ya tienes una reserva futura y no puedes reservar otra fecha');
   return;
- } */
+} */
 
-  await firestore.collection('reservas').add({
+    await firestore.collection('reservas').add({
     'Reserva realizada': Timestamp.now(),
     'Reserva empieza': Timestamp.fromDate(startDate),  
     'Reserva hasta': Timestamp.fromDate(endDate),     
     'Usuario': email,  
     '¿Como viene eso?': 'Locker ocupado',                                  
   });
-
+  
   _confirmar(context);
   context.pushNamed(Teneslocker.name);
 }
@@ -87,8 +89,8 @@ if (mismousuario.docs.isNotEmpty) {
   
             TableCalendar(
          headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
-          firstDay: DateTime.utc(2024, 11, 8),
-          lastDay: DateTime.utc(2024, 11, 16),
+          firstDay: DateTime.utc(2024, 11, 13),
+          lastDay: DateTime.utc(2024, 11, 20),
           startingDayOfWeek: StartingDayOfWeek.monday,
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) {
