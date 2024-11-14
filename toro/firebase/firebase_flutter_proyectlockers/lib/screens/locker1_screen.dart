@@ -43,15 +43,15 @@ Future<void> _reserveDay(DateTime date, String email) async {
     return;
   }
 
-    final fechasanteriores = await firestore
+  final fechasanteriores = await firestore
       .collection('reservas')
-      .where('Reserva empieza', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+      .where('Reserva empieza', isLessThan: Timestamp.fromDate(DateTime.now()))
       .get();
 
   if (fechasanteriores.docs.isNotEmpty) {  
     _showError(context, 'Fecha no disponible');
     return;
-  }
+  } 
 
 final mismousuario = await firestore
     .collection('reservas')
@@ -66,6 +66,7 @@ final eshoy = await firestore
 
   if (eshoy.docs.isNotEmpty) {  
     _confirmar(context);
+    context.pushNamed(Teneslocker.name);
     return;
   }
 
@@ -84,7 +85,7 @@ if (futuros.isNotEmpty) {
     'Reserva empieza': Timestamp.fromDate(startDate),  
     'Reserva hasta': Timestamp.fromDate(endDate),     
     'Usuario': email,  
-    '¿Como viene eso?': 'Locker ocupado',                                  
+    '¿Como viene eso?': 'Reservado',                                  
   });
   
   _confirmar(context);
