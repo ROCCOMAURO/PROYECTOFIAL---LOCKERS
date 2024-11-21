@@ -264,7 +264,6 @@ class Teneslocker extends StatelessWidget {
                           '¿Seguro que quieres cerrar sesión?',
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

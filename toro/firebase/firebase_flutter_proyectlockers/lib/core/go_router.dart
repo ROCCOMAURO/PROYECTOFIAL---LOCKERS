@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 final appRouter = GoRouter(routes: [
     GoRoute(
     name: Teneslocker.name,
-    path: '/',
+    path: '/tenes',
     builder: (context, state) => Teneslocker(),
   ),
     GoRoute(
@@ -21,7 +21,7 @@ final appRouter = GoRouter(routes: [
     
     GoRoute(
     name: HomeScreen.name,
-    path: '/home',
+    path: '/',
     builder: (context, state) => const HomeScreen(),
   ),
 

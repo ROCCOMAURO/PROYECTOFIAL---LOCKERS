@@ -33,6 +33,7 @@ appBar: AppBar(
       
     body: Padding(
         padding: const EdgeInsets.all(16.0),
+          
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[ 
@@ -208,7 +209,7 @@ appBar: AppBar(
               size: 30,
             ),
             SizedBox(width: 10),
-            Text('Cerrar sesion',
+            Text('Cerrar sesión',
               style: TextStyle(
                 fontSize: 20,
                 color: Colors.white,
