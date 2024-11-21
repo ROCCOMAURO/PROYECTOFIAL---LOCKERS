@@ -10,12 +10,12 @@ import 'package:go_router/go_router.dart';
 final appRouter = GoRouter(routes: [
     GoRoute(
     name: Teneslocker.name,
-    path: '/tenes',
+    path: '/',
     builder: (context, state) => Teneslocker(),
   ),
     GoRoute(
     name: LoginScreen.name,
-    path: '/',
+    path: '/login',
     builder: (context, state) => const LoginScreen(),
   ),  
     
